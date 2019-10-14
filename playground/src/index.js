@@ -1,53 +1,50 @@
-console.log(111111)
-console.log(111111)
-const OnigasmModuleFactory = require("../lib/hello");
-console.log(OnigasmModuleFactory);
+const ModuleFactory = require("../public/output/main");
 
 
-export let onigasmH;
+export const loadASM = (url) => new Promise((resolve, reject) =>{
 
-async function initModule(bytes) {
-    return new Promise((resolve, reject) => {
-        OnigasmModuleFactory({
+    fetch(url).then(async (resp) => {
+        const arrayBuffter = await resp.arrayBuffer();
+
+        ModuleFactory({
             instantiateWasm(imports, successCallback) {
-                WebAssembly.instantiate(bytes, imports)
+                WebAssembly.instantiate(arrayBuffter, imports)
                     .then((output) => {
-                        console.log("output.instance->", output.instance)
                         successCallback(output.instance);
                     })
                     .catch((e) => {
                         throw e
                     })
                 return {}
-            },
+            }
+        }).then(moduleH => {
+            // 注意：一定要删除导出的then方法,否则执行`resolve(moduleH)`会造成死循环
+            delete moduleH.then;
+            resolve(moduleH)
         })
-            .then(moduleH => {
-                onigasmH = moduleH
-                resolve()
-            })
-    })
-}
+    }).catch((e) => reject(e))
+});
+
+
+loadASM(`output/main.wasm?time=${Date.now()}`).then((module) =>{
+    const { asm: exports, UTF8ToString, HEAP32, HEAP8} = module;
+    // console.log("exports->", exports)
+
+    const sum = exports._add(1, 2);
+    console.log("sum->", sum)
+    // ---获取字符串---
+    const ptr = exports._get_string();
+    const str = UTF8ToString(ptr);
+    console.log("str->", str);
+
+
+    var int_ptr = exports._get_int_ptr();
+    // console.log(int_ptr)
+    // console.log(int_ptr >> 2)
+    var int_value = HEAP8[int_ptr];
+    console.log("JS{int_value:" + int_value + "}");
+
+
+}).catch((e) => console.error(e))
 
 let isInitialized = false
-
-/**
- * Mount the .wasm file that will act as library's "backend"
- * @param data Path to .wasm file or it's ArrayBuffer
- */
-export async function loadWASM(data) {
-    if (isInitialized) {
-        throw new Error(`Onigasm#init has been called and was succesful, subsequent calls are not allowed once initialized`)
-    }
-    if (typeof data === 'string') {
-        const arrayBuffer = await (await fetch(data)).arrayBuffer()
-        await initModule(arrayBuffer)
-    } else if (data instanceof ArrayBuffer) {
-        await initModule(data)
-    } else {
-        throw new TypeError(`Expected a string (URL of .wasm file) or ArrayBuffer (.wasm file itself) as first parameter`)
-    }
-
-    isInitialized = true
-}
-
-loadWASM("hello.wasm")
