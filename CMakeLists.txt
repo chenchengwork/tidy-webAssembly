@@ -3,4 +3,4 @@ project(tidy-webAssembly)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(tidy-webAssembly src/main.cpp src/myMath/myMath.cpp)
+add_executable(tidy-webAssembly src/main.cpp)

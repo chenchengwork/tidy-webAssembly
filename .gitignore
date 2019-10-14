@@ -5,6 +5,6 @@ node_modules/
 package-lock.json
 yarn.lock
 coverage/
-.idea/
+.idea
 .DS_Store
-i18n-messages
+cmake-build-debug
