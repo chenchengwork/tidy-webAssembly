@@ -12,4 +12,5 @@ emcc -O2 \
     -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=1 \
     -s MODULARIZE=1 \
     -s EXPORT_NAME="'Main'" \
+    --js-library ./src/pkg.js \
     -o playground/public/output/main.js
