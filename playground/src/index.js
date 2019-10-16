@@ -8,7 +8,6 @@ export const loadASM = (url, importObj = {}) => new Promise((resolve, reject) =>
 
         ModuleFactory({
             instantiateWasm(imports, successCallback) {
-                console.log("imports->",  Object.assign({}, imports, importObj))
                 WebAssembly.instantiate(arrayBuffter, Object.assign({}, imports, importObj))
                     .then((output) => {
                         console.log("output.instance->", output.instance)
@@ -29,7 +28,6 @@ export const loadASM = (url, importObj = {}) => new Promise((resolve, reject) =>
 
 
 loadASM(`output/main.wasm?time=${Date.now()}`).then((module) =>{
-    console.log("module->", module)
     const { asm: exports, UTF8ToString, HEAP32, HEAP8, allocateUTF8, _free} = module;
     // console.log("exports->", exports)
 
@@ -46,8 +44,6 @@ loadASM(`output/main.wasm?time=${Date.now()}`).then((module) =>{
 
 
     var int_ptr = exports._get_int_ptr();
-    // console.log(int_ptr)
-    // console.log(int_ptr >> 2)
     var int_value = HEAP8[int_ptr];
     console.log("JS{int_value:" + int_value + "}");
 
@@ -56,6 +52,8 @@ loadASM(`output/main.wasm?time=${Date.now()}`).then((module) =>{
     const a = exports._mdmd(ptr1)
     console.log(UTF8ToString(a))
     _free(ptr1)
+
+
 }).catch((e) => console.error(e))
 
 let isInitialized = false
