@@ -7,7 +7,7 @@
 #include "macro.h"
 #include "myMath.cpp"
 #include "embed_js.cpp"
-//#include "test_canvas.cpp"
+#include "test_canvas.cpp"
 
 // 导出字符串
 EM_PORT_API(const char*) get_string() {

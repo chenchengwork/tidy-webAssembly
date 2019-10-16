@@ -28,7 +28,7 @@ export const loadASM = (url, importObj = {}) => new Promise((resolve, reject) =>
 
 
 loadASM(`output/main.wasm?time=${Date.now()}`).then((module) =>{
-    const { asm: exports, UTF8ToString, HEAP32, HEAP8, allocateUTF8, _free} = module;
+    const { asm: exports, UTF8ToString, HEAP32, HEAP8, HEAPU8, allocateUTF8, _free} = module;
     // console.log("exports->", exports)
 
     const sum = exports._add(1, 2);
@@ -53,6 +53,34 @@ loadASM(`output/main.wasm?time=${Date.now()}`).then((module) =>{
     console.log(UTF8ToString(a))
     _free(ptr1)
 
+
+
+    let radii = 200, delta = 1, canvas = null;
+
+    function update() {
+        if(!canvas){
+            canvas = document.createElement("canvas");
+            canvas.width = 400;
+            canvas.height = 400;
+            document.querySelector("#wrapper").appendChild(canvas);
+        }
+
+        const buf_addr = exports._get_img_buf(400, 400);
+        exports._draw_circle(200, 200, radii);
+
+        radii += delta;
+        if (radii > 200 || radii < 0) delta = -delta;
+
+        const u8o = new Uint8ClampedArray(HEAPU8.subarray(buf_addr, buf_addr + 400 * 400 * 4));
+        const imgData = new ImageData(u8o, 400, 400);
+
+        var ctx = canvas.getContext('2d');
+        ctx.putImageData(imgData, 0, 0);
+
+        window.requestAnimationFrame(update);
+    }
+
+    update()
 
 }).catch((e) => console.error(e))
 

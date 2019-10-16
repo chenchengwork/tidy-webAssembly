@@ -2,6 +2,8 @@
 // Created by chencheng on 19-10-16.
 //
 #include "macro.h"
+#include <malloc.h>
+#include <stdint.h>
 
 uint8_t *img_buf = NULL;
 int img_width = 0, img_height = 0;
@@ -18,6 +20,7 @@ EM_PORT_API(uint8_t*) get_img_buf(int w, int h) {
 
     return img_buf;
 }
+
 
 EM_PORT_API(void) draw_circle(int cx, int cy, int radii) {
     int sq = radii * radii;
